@@ -21,7 +21,7 @@ Bootstrap a Google Cloud service account for LtInteg using Cloud Shell in a few 
 Run the following in Cloud Shell:
 
 ```bash
-curl -fsSL "<RAW_SCRIPT_URL>" -o bootstrap-service-account.sh
+curl -fsSL "https://github.com/ltinteg/ltinteg-bootstrap-gcp-connection/blob/master/bootstrap-service-account.sh" -o bootstrap-service-account.sh
 chmod +x bootstrap-service-account.sh
 ./bootstrap-service-account.sh YOUR_PROJECT_ID
 ```
