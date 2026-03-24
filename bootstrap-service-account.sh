@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # LtInteg GCP connection — create service account + project roles + enable APIs
-# Version: 1.0.0 — align roles with docs/reference/GCP_SERVICE_ACCOUNT_IAM.md
+# Version: 1.0.2 — preflight auth check for Cloud Shell sessions
 #
 # Usage (Cloud Shell):
 #   curl -fsSL .../bootstrap-service-account.sh | bash -s -- YOUR_PROJECT_ID
@@ -18,6 +18,16 @@ if [[ -z "${PROJECT_ID}" ]]; then
   echo "Example: $0 my-gcp-project ltinteg-connection" >&2
   exit 1
 fi
+
+ACTIVE_ACCOUNT="$(gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null || true)"
+if [[ -z "${ACTIVE_ACCOUNT}" ]]; then
+  echo "ERROR: No active gcloud account found." >&2
+  echo "Run one of the following, then re-run this script:" >&2
+  echo "  gcloud auth login" >&2
+  echo "  gcloud config set account ACCOUNT" >&2
+  exit 1
+fi
+echo "==> Using gcloud account: ${ACTIVE_ACCOUNT}"
 
 echo "==> Using project: ${PROJECT_ID}"
 gcloud config set project "${PROJECT_ID}"
@@ -53,17 +63,21 @@ ROLES=(
   roles/storage.admin
   roles/run.admin
   roles/dns.admin
-  roles/certificatemanager.admin
+  roles/certificatemanager.editor
   roles/compute.networkViewer
   roles/artifactregistry.reader
 )
 
 echo "==> Binding roles (idempotent adds)..."
 for role in "${ROLES[@]}"; do
-  gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+  if gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     --member="serviceAccount:${SA_EMAIL}" \
     --role="${role}" \
-    --quiet
+    --quiet; then
+    echo "   [ok] ${role}"
+  else
+    echo "   [warn] could not bind ${role} on project ${PROJECT_ID}; skipping." >&2
+  fi
 done
 
 echo ""

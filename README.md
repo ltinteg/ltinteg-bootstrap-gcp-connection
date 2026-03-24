@@ -2,7 +2,7 @@
 
 Bootstrap a Google Cloud service account for LtInteg using Cloud Shell in a few minutes.
 
-**Artifact version:** `1.0.0`
+**Artifact version:** `1.0.2`
 
 ## What this repository provides
 
@@ -46,7 +46,7 @@ sha256sum bootstrap-service-account.sh
 
 Expected SHA256:
 
-`6195aad1d7c98944303ff175d7e5a05682b964ae9912ad5d8ff29cb34d464ddb`
+`7123bff8e13ea2f39c63a47664eaafc3e015702fa870e41e94cad4b66a4b338a`
 
 ## Security notes
 
@@ -54,6 +54,13 @@ Expected SHA256:
 - Grant only required roles; remove domains your organization does not use.
 - Never commit JSON keys to source control.
 
+## Troubleshooting
+
+- **`You do not currently have an active account selected`**
+  - Run `gcloud auth login` (or `gcloud config set account ACCOUNT`) and execute the script again.
+
 ## Version history
 
+- `1.0.2`: added preflight check for active `gcloud` account before enabling APIs.
+- `1.0.1`: use `roles/certificatemanager.editor` and continue when a role cannot be bound.
 - `1.0.0`: initial public release.
