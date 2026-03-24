@@ -1,33 +1,59 @@
-# GCP: LtInteg service account bootstrap (Cloud Shell)
+# LtInteg GCP Connection Bootstrap
 
-**Artifact version:** 1.0.0
+Bootstrap a Google Cloud service account for LtInteg using Cloud Shell in a few minutes.
 
-## Why a script (not CloudFormation)
+**Artifact version:** `1.0.0`
 
-GCP does not provide an AWS CloudFormation–equivalent “upload one template for all IAM” flow. Running this script in **Cloud Shell** avoids installing `gcloud` locally; you are already authenticated to your project.
+## What this repository provides
 
-## Steps
+- `bootstrap-service-account.sh`: creates a dedicated service account and applies the IAM roles required by LtInteg.
+- A repeatable setup flow designed for project administrators.
+- A simple Cloud Shell-first workflow, so no local `gcloud` install is required.
 
-1. Open [Cloud Shell](https://shell.cloud.google.com/) and select your project.
-2. Upload `bootstrap-service-account.sh` or paste its contents into a new file.
-3. Run:
-   ```bash
-   chmod +x bootstrap-service-account.sh
-   ./bootstrap-service-account.sh YOUR_PROJECT_ID
-   ```
-4. Optional second argument: service account short name (default `ltinteg-connection`).
-5. Create a **JSON key** for that service account only if LtInteg is configured to use key-based auth; store it securely and paste into LtInteg.
+## Prerequisites
 
-Role bindings match [GCP_SERVICE_ACCOUNT_IAM.md](../../docs/reference/GCP_SERVICE_ACCOUNT_IAM.md).
+- Google Cloud project where LtInteg will operate
+- Project-level permission to manage IAM (`roles/resourcemanager.projectIamAdmin` or equivalent)
+- Access to [Google Cloud Shell](https://shell.cloud.google.com/)
 
-## Checksum
+## Quick start (Cloud Shell)
+
+Run the following in Cloud Shell:
+
+```bash
+curl -fsSL "<RAW_SCRIPT_URL>" -o bootstrap-service-account.sh
+chmod +x bootstrap-service-account.sh
+./bootstrap-service-account.sh YOUR_PROJECT_ID
+```
+
+Optional second argument:
+
+```bash
+./bootstrap-service-account.sh YOUR_PROJECT_ID ltinteg-connection
+```
+
+If your LtInteg setup uses service account key authentication, create a JSON key for this account after bootstrap and store it securely.
+
+## IAM scope
+
+The script applies the role set documented in `GCP_SERVICE_ACCOUNT_IAM.md` (viewer, storage, run, DNS, certificate manager, network viewer, and Artifact Registry reader).
+
+## Verify artifact integrity
 
 ```bash
 sha256sum bootstrap-service-account.sh
 ```
 
-**SHA256** (current committed file): `6195aad1d7c98944303ff175d7e5a05682b964ae9912ad5d8ff29cb34d464ddb`
+Expected SHA256:
 
-## Changelog
+`6195aad1d7c98944303ff175d7e5a05682b964ae9912ad5d8ff29cb34d464ddb`
 
-- **1.0.0** — Initial bundle (viewer, storage, run, DNS, certificate manager, network viewer, Artifact Registry reader).
+## Security notes
+
+- Use a dedicated service account per environment when possible.
+- Grant only required roles; remove domains your organization does not use.
+- Never commit JSON keys to source control.
+
+## Version history
+
+- `1.0.0`: initial public release.
